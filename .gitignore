@@ -28,7 +28,7 @@
 ./*/.idea/**/shelf
 
 # Generated files
-.idea/**/contentModel.xml
+./*/.idea/**/contentModel.xml
 
 # Sensitive or high-churn files
 ./*/.idea/**/dataSources/
@@ -113,3 +113,4 @@ pyvenv.cfg
 .venv
 pip-selfcheck.json
 *.pyc
+.idea
