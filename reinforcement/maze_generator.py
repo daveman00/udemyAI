@@ -1,5 +1,5 @@
 # maze generator using hunt and kill algorithm
-
+from __future__ import print_function
 import numpy
 
 
@@ -22,6 +22,8 @@ class Maze:
         self.grid = self.generate_grid()
         # copy grid to visit_map to track the changes in maze generation
         self.visit_map = numpy.copy(self.grid)
+        # generate maze
+        self.hunt_n_kill()
 
     # fill maze grid with empty cells in the following manner:
     #   1 1 1 1 1
@@ -98,25 +100,60 @@ class Maze:
             start = self.hunt()
             if start is None: break
 
+    def get_reinforcement_grid(self):
+        grid = numpy.where(self.grid > 0, '#', ' ')
+        path = numpy.where(grid == ' ')
+        indexS = numpy.random.choice(path[0].size, replace=False)
+        index1 = numpy.random.choice(path[0].size, replace=False)
+        i = path[0][indexS], path[1][indexS]
+        j = path[0][index1], path[1][index1]
+        grid = grid.tolist()
+        grid[path[0][indexS]][path[1][indexS]] = 'S'
+        grid[path[0][index1]][path[1][index1]] = 1
+        return grid
 
 # debugging purposes
 def color_print_map(arr):
-    BLUE = '\x1b[1;34m'
-    RED = '\x1b[1;31m'
-    ENDC = '\x1b[0m'
+#    BLUE = '\x1b[1;34m'
+#    RED = '\x1b[1;31m'
+#    ENDC = '\x1b[0m'
+    print('[', end='')
     for i in range(len(arr)):
+        print('[', end='')
         for j in range(len(arr)):
-            if arr[i,j] == 0:
-                print(RED + str(int(arr[i,j])) + ENDC, end=' ')
+            if arr[i, j] == 0:
+#                print(RED + str(int(arr[i,j])) + ENDC, end=' ')
+                print('\' \'', end=',')
             else:
-                print(str(int(arr[i,j])), end=' ')
+#                print(str(int(arr[i,j])), end=' ')
+                print('\'#\'', end=',')
 
-        print()
+        print('],')
+    print(']')
 
 
 if __name__ == '__main__':
     maze = Maze(11)
-    maze.hunt_n_kill()
+#    maze.hunt_n_kill()
     print('==============')
-    color_print_map(maze.grid)
+#    color_print_map(maze.grid)
+    print(maze.grid)
+    result = numpy.where(maze.grid > 0, '#', ' ')
+    path = numpy.where(result == ' ')
     print('==============')
+    print(result)
+    print(path)
+    print(path[0].size)
+    print(path[1].size)
+    index = numpy.random.choice(path[0].size, replace=False)
+    print(index)
+    i = path[0][index], path[1][index]
+    print(i)
+    result[i] = 'S'
+    print(result)
+    index = numpy.random.choice(path[0].size, replace=False)
+    print(index)
+    i = path[0][index], path[1][index]
+    print(i)
+    result[i] = +1
+    print(result)
