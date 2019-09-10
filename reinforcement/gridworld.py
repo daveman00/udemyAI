@@ -304,32 +304,21 @@ def getBookGrid(size=0):
             ['S',' ',' ',' ']]
     return Gridworld(grid)
 
-def getMazeGrid(size=7):
-    grid = [[' ',' ',' ',+1],
-            ['#','#',' ','#'],
-            [' ','#',' ',' '],
-            [' ','#','#',' '],
-            ['S',' ',' ',' ']]
-    print("###############################################")
-    print(type(grid))
-    print(grid)
-#    raw_input()
-    grid = maze_generator.Maze(size).get_reinforcement_grid()
-    print(type(grid))
-    print(grid)
-#    raw_input()
-#     grid = [['#','#','#','#','#','#','#','#','#','#','#',],
-#             ['#',' ',' ',' ',' ',' ','#',+1,' ',' ','#',],
-#             ['#',' ','#','#','#',' ','#','#','#',' ','#',],
-#             ['#',' ',' ',' ','#',' ',' ',' ',' ',' ','#',],
-#             ['#','#','#',' ','#','#','#','#','#','#','#',],
-#             ['#',' ',' ',' ',' ',' ','#',' ',' ',-1,'#',],
-#             ['#',' ','#','#','#',' ','#',' ','#','#','#',],
-#             ['#',' ','#',-1,' ',' ','#',' ',' ',' ','#',],
-#             ['#',' ','#','#','#','#','#',' ','#',' ','#',],
-#             ['#','S',' ',' ',' ',' ',' ',' ','#',-1,'#',],
-#             ['#','#','#','#','#','#','#','#','#','#','#',]]
-    return Gridworld(grid)
+def getMazeGrid(opts):
+    maze = maze_generator.Maze(opts.size)
+    if opts.save:
+        filename = 'maze.txt'
+        try:
+            maze.read_maze(filename)
+            return Gridworld(maze.get_reinforcement_grid())
+        except IOError:
+            print("File not found - ", filename)
+            maze.hunt_n_kill()
+            maze.save_maze(filename)
+            print("File saved")
+    else:
+        maze.hunt_n_kill()
+    return Gridworld(maze.get_reinforcement_grid())
 
 def getUserAction(state, actionFunction):
     """
@@ -444,8 +433,10 @@ def parseOptions():
                          help='Manually control agent')
     optParser.add_option('-v', '--valueSteps',action='store_true' ,default=False,
                          help='Display each step of value iteration')
-    optParser.add_option('-z', '--size', type='int', dest='size', action='store', default=7,
+    optParser.add_option('--size', type='int', dest='size', action='store', default=7,
                          help='Set MazeGrid size (usable only with MazeGrid)')
+    optParser.add_option('--save', dest='save', action='store_true', default=False,
+                         help='Save MazeGrid to file /or read it from file. (maze.txt - usable only with MazeGrid)')
 
     opts, args = optParser.parse_args()
 
@@ -475,7 +466,7 @@ if __name__ == '__main__':
 
     import gridworld
     mdpFunction = getattr(gridworld, "get"+opts.grid)
-    mdp = mdpFunction(opts.size)
+    mdp = mdpFunction(opts)
     mdp.setLivingReward(opts.livingReward)
     mdp.setNoise(opts.noise)
     env = gridworld.GridworldEnvironment(mdp)

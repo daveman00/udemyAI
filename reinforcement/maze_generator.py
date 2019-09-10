@@ -1,15 +1,16 @@
 # maze generator using hunt and kill algorithm
 from __future__ import print_function
 import numpy
+import ast
 
 
 # Maze class - handles generation of square maze using Hunt'n'Kill algorithm
 class Maze:
     # dictionary with direction vectors
-    directions = {'N': (-2,0),
-                  'W': (0,-2),
-                  'S':  (2,0),
-                  'E':  (0,2),
+    directions = {'N': (-2, 0),
+                  'W': (0, -2),
+                  'S': (2, 0),
+                  'E': (0, 2),
                   }
 
     # initialize Maze class - size should be an odd number
@@ -22,8 +23,10 @@ class Maze:
         self.grid = self.generate_grid()
         # copy grid to visit_map to track the changes in maze generation
         self.visit_map = numpy.copy(self.grid)
+        self.reinforcement_grid = []
         # generate maze
-        self.hunt_n_kill()
+        #self.hunt_n_kill()
+        #self.reinforcement_grid = self.translate_grid()
 
     # fill maze grid with empty cells in the following manner:
     #   1 1 1 1 1
@@ -33,9 +36,9 @@ class Maze:
     #   1 1 1 1 1
     def generate_grid(self):
         grid = numpy.ones(shape=(self.size, self.size))
-        for i in range(1,grid.shape[0], 2):
-            for j in range(1,grid.shape[1], 2):
-                grid[i,j] = 0
+        for i in range(1, grid.shape[0], 2):
+            for j in range(1, grid.shape[1], 2):
+                grid[i, j] = 0
         return numpy.array(grid)
 
     # return coordinates of random unvisited cell
@@ -99,18 +102,31 @@ class Maze:
             self.kill(start)
             start = self.hunt()
             if start is None: break
+        self.reinforcement_grid = self.translate_grid()
 
     def get_reinforcement_grid(self):
+        return self.reinforcement_grid
+
+    def translate_grid(self):
         grid = numpy.where(self.grid > 0, '#', ' ')
         path = numpy.where(grid == ' ')
         indexS = numpy.random.choice(path[0].size, replace=False)
         index1 = numpy.random.choice(path[0].size, replace=False)
-        i = path[0][indexS], path[1][indexS]
-        j = path[0][index1], path[1][index1]
         grid = grid.tolist()
         grid[path[0][indexS]][path[1][indexS]] = 'S'
         grid[path[0][index1]][path[1][index1]] = 1
         return grid
+
+    def read_maze(self, filename='maze.txt'):
+        with open(filename) as file:
+            data = file.read()
+            self.reinforcement_grid = ast.literal_eval(data)
+
+    def save_maze(self, filename='maze.txt'):
+        file = open(filename, 'w+')
+        file.write(str(self.get_reinforcement_grid()))
+
+
 
 # debugging purposes
 def color_print_map(arr):
